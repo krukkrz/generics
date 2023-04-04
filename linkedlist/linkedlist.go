@@ -25,8 +25,11 @@ func New[T any]() *LinkedList[T] {
 }
 
 func (l LinkedList[T]) Get(index int) T {
-	//TODO implement me
-	panic("implement me")
+	current := l.head
+	for i := 0; i < index; i++ {
+		current = current.Next
+	}
+	return current.Value
 }
 
 func (l *LinkedList[T]) Insert(t T) {

@@ -27,9 +27,9 @@ func TestInsert(t *testing.T) {
 
 	counter := 0
 	currentNode := ll.head
-
+	to = revert(to)
 	for {
-		if currentNode.Value != to[len(to)-counter-1] {
+		if currentNode.Value != to[counter] {
 			t.Errorf("unexpected value, got: %v, expected %v", currentNode.Value, to[counter])
 		}
 
@@ -54,6 +54,21 @@ func TestInsert(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
+	to := generateTestObjects()
+	ll := New[TestObject]()
+
+	for _, obj := range to {
+		ll.Insert(obj)
+	}
+	to = revert(to)
+
+	for i, o := range to {
+		actual := ll.Get(i)
+		if o != actual {
+			t.Errorf("unexpected value, got: %v, expected: %v", actual, o)
+		}
+	}
+
 }
 
 func TestDelete(t *testing.T) {
@@ -67,6 +82,14 @@ func generateTestObjects() []TestObject {
 		to = append(to, TestObject{tf})
 	}
 	return to
+}
+
+func revert(l []TestObject) []TestObject {
+	var result []TestObject
+	for i := len(l) - 1; i >= 0; i-- {
+		result = append(result, l[i])
+	}
+	return result
 }
 
 func (t TestObject) String() string {
