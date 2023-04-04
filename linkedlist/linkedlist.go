@@ -1,10 +1,9 @@
 package linkedlist
 
-type LinkedListInterface[T any] interface {
+type Interface[T any] interface {
 	Get(index int) T
 	Insert(T)
 	Delete(index int)
-	String()
 }
 
 type Node[T any] struct {
@@ -24,12 +23,19 @@ func New[T any]() *LinkedList[T] {
 	}
 }
 
-func (l LinkedList[T]) Get(index int) T {
+func (l LinkedList[T]) Get(index int) *T {
+	if index < 0 {
+		return nil
+	}
 	current := l.head
 	for i := 0; i < index; i++ {
-		current = current.Next
+		next := current.Next
+		if next == nil {
+			return nil
+		}
+		current = next
 	}
-	return current.Value
+	return &current.Value
 }
 
 func (l *LinkedList[T]) Insert(t T) {
@@ -42,11 +48,21 @@ func (l *LinkedList[T]) Insert(t T) {
 }
 
 func (l *LinkedList[T]) Delete(index int) {
-	//TODO implement me
-	panic("implement me")
-}
+	if index == 0 {
+		l.head = l.head.Next
+		return
+	}
 
-func (l LinkedList[T]) String() {
-	//TODO implement me
-	panic("implement me")
+	var prev *Node[T]
+	var del *Node[T]
+
+	current := l.head
+	for i := 0; i < index-1; i++ {
+		current = current.Next
+	}
+
+	prev = current
+	del = current.Next
+
+	prev.Next = del.Next
 }

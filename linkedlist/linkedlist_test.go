@@ -54,25 +54,88 @@ func TestInsert(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	to := generateTestObjects()
-	ll := New[TestObject]()
-
-	for _, obj := range to {
-		ll.Insert(obj)
+	testCases := []struct {
+		name          string
+		index         int
+		expectedValue *TestObject
+	}{
+		{
+			name: "iterate through all",
+		},
+		{
+			name:          "index out of range",
+			index:         200,
+			expectedValue: nil,
+		},
+		{
+			name:          "index negative",
+			index:         -1,
+			expectedValue: nil,
+		},
 	}
-	to = revert(to)
 
-	for i, o := range to {
-		actual := ll.Get(i)
-		if o != actual {
-			t.Errorf("unexpected value, got: %v, expected: %v", actual, o)
-		}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			to := generateTestObjects()
+			ll := New[TestObject]()
+
+			for _, obj := range to {
+				ll.Insert(obj)
+			}
+			to = revert(to)
+
+			iterateThroughAll := tc.index == 0
+
+			if iterateThroughAll {
+				for i, o := range to {
+					actual := ll.Get(i)
+					if o != *actual {
+						t.Errorf("unexpected value, got: %v, expected: %v", actual, o)
+					}
+				}
+			} else {
+				actual := ll.Get(tc.index)
+				if actual != tc.expectedValue {
+					t.Errorf("unexpected value, got: %v, expected: %v", actual, tc.expectedValue)
+				}
+			}
+		})
 	}
 
 }
 
 func TestDelete(t *testing.T) {
+	testCases := []struct {
+		name  string
+		index int
+	}{
+		{"remove first element", 0},
+		{"remove 20th element", 20},
+		{"remove last element", 99},
+	}
 
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			to := generateTestObjects()
+			ll := New[TestObject]()
+
+			for _, obj := range to {
+				ll.Insert(obj)
+			}
+			to = revert(to)
+
+			o := ll.Get(tc.index)
+			ll.Delete(tc.index)
+
+			for i, _ := range to {
+				actual := ll.Get(i)
+
+				if actual == o {
+					t.Errorf("object with index %d was not deleted, and now has index: %d", tc.index, i)
+				}
+			}
+		})
+	}
 }
 
 func generateTestObjects() []TestObject {
